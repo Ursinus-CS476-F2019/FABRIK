@@ -9,6 +9,13 @@
 <body>
 
 <h2>Forward And Backward Reaching Inverse Kinematics (FABRIK)</h2>
+<h3>Implementation by Chris Tralie</h3>
+<h3><a href = "http://www.andreasaristidou.com/FABRIK.html">Original paper</a> by Andreas Aristidou and Joan Lasenby</h3>
+
+<h3>Directions:</h3>
+<p>
+    Select points on the arm by left clicking, and right click to remove them.  Then select a target, and click the "FABRIK Iteration" button to move the end effector towards the target.  You may need to hit this button multiple times to fully reach the target.  If the target is unreachable, it will get as close as possible.
+</p>
 
 <table>
 <tr>
@@ -16,7 +23,7 @@
 <table cellpadding = 2>
 <tr><td colspan=2><button type = "button" onclick = "selectArm()" id="selectArm">Select Arm</button></td></tr>
 <tr><td colspan=2><button type = "button" onclick = "selectPoint()" id="selectTarget">Select Target</button></td></tr>
-<tr><td colspan=2><button type = "button" onclick = "moveToTarget()" id="moveToTarget">Move To Target</button></td></tr>
+<tr><td colspan=2><button type = "button" onclick = "moveToTarget()" id="moveToTarget">FABRIK Iteration</button></td></tr>
 </table>
 </td>
 <td>
