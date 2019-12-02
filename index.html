@@ -1,0 +1,150 @@
+<!--Programmer: Chris Tralie!-->
+<!--Purpose: Front end point chooser / debugger for FABRIK!-->
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="style.css">
+<script src = "gl-matrix-min.js"></script>
+<script src = "FABRIK.js"></script>
+</head>
+<body>
+
+<h2>Forward And Backward Reaching Inverse Kinematics (FABRIK)</h2>
+
+<table>
+<tr>
+<td width = "200">
+<table cellpadding = 2>
+<tr><td colspan=2><button type = "button" onclick = "selectArm()" id="selectArm">Select Arm</button></td></tr>
+<tr><td colspan=2><button type = "button" onclick = "selectPoint()" id="selectTarget">Select Target</button></td></tr>
+<tr><td colspan=2><button type = "button" onclick = "moveToTarget()" id="moveToTarget">Move To Target</button></td></tr>
+</table>
+</td>
+<td>
+<canvas id = "segcanvas" width = "600" height = "600" style="border:1px solid #000000;">
+</canvas>
+</td>
+</tr>
+</table>
+
+<script>
+let Ps = []; //Points [a, b, c] on the triangle
+let p = null; // Target
+let canvas = document.getElementById('segcanvas');
+let ctx = canvas.getContext("2d"); //For drawing
+ctx.font = "16px Arial";
+//Need this to disable that annoying menu that pops up on right click
+canvas.addEventListener("contextmenu", function(e){ e.stopPropagation(); e.preventDefault(); return false; }); 
+let selectingArm = true;
+
+let armButton = document.getElementById("selectArm");
+let targetButton = document.getElementById("selectTarget");
+let moveButton = document.getElementById("moveToTarget");
+
+function selectPoint() {
+    selectingArm = false;
+    armButton.style.background = "#bfbfbf";
+    moveButton.style.background = "#bfbfbf";
+    targetButton.style.background = "#bb1111";
+}
+
+function selectArm() {
+    selectingArm = true;
+    armButton.style.background = "#bb1111";
+    moveButton.style.background = "#bfbfbf";
+    targetButton.style.background = "#bfbfbf";
+}
+
+function moveToTarget() {
+    armButton.style.background = "#bfbfbf";
+    moveButton.style.background = "#bb1111";;
+    targetButton.style.background = "#bfbfbf";
+    FABRIKIter(Ps, p);
+    repaint();
+}
+
+selectArm();
+
+colors = ["#ff0000", "#ff00ff", "#0000ff", "#00aa00"];
+
+function repaint() {
+    var dW = 5;
+    var W = canvas.width;
+    var H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+
+    if (!(p === null)) {
+        //Draw target
+        ctx.fillStyle = 'black';
+        ctx.fillRect(p[0]-dW*2, p[1]-dW*2, dW*4+1, dW*4+1);
+    }
+    
+    //Draw joints
+    for (var i = 0; i < Ps.length; i++) {
+        ctx.fillStyle = colors[i%colors.length];
+        let dWi = dW;
+        if (i == 0) {
+            dWi *= 1.5;
+        }
+        ctx.fillRect(Ps[i][0]-dWi, Ps[i][1]-dWi, dWi*2+1, dWi*2+1);
+    }
+    
+    //Draw body
+    ctx.fillStyle = "#000000";
+    for (var i = 0; i < Ps.length-1; i++) {
+        ctx.beginPath();
+        ctx.moveTo(Ps[i][0], Ps[i][1]);
+        ctx.lineTo(Ps[(i+1)%Ps.length][0], Ps[(i+1)%Ps.length][1]);
+        ctx.stroke();        
+    }
+}
+
+
+function getMousePos(canvas, evt) {
+	var rect = canvas.getBoundingClientRect();
+	return {
+	    X: evt.clientX - rect.left,
+	    Y: evt.clientY - rect.top
+	};
+}
+
+function selectVec(evt) {
+    var mousePos = getMousePos(canvas, evt);
+    var X = mousePos.X;
+    var Y = mousePos.Y
+    var clickType = "LEFT";
+	evt.preventDefault();
+	if (evt.which) {
+	    if (evt.which == 3) clickType = "RIGHT";
+	    if (evt.which == 2) clickType = "MIDDLE";
+	}
+	else if (evt.button) {
+	    if (evt.button == 2) clickType = "RIGHT";
+	    if (evt.button == 4) clickType = "MIDDLE";
+	}
+    
+    if (selectingArm) {
+        if (clickType == "LEFT") {
+            Ps.push(vec3.fromValues(X, Y, 0));
+        }
+        else {
+            //Remove point
+            if (Ps.length > 0) {
+                Ps.pop();
+            }
+        }
+    }
+    else {
+        p = vec3.fromValues(X, Y, 0);
+    }
+    repaint();
+}
+
+canvas.addEventListener("mousedown", selectVec);
+canvas.addEventListener("touchstart", selectVec); //Works on mobile devices!
+repaint();
+
+</script>
+
+
+</body>
+</html>
