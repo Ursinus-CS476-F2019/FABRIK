@@ -112,10 +112,12 @@ function updateArm() {
         angles[k] = Math.PI*parseFloat(document.getElementById("angle"+(k+1)).value)/180;
     }
     Ps = [vec3.fromValues(10, 300, 0)];
+    let angle = 0;
     for (let k = 0; k < 3; k++) {
+        angle += angles[k];
         let pk = vec3.create();
         vec3.copy(pk, Ps[Ps.length-1]);
-        let dir = vec3.fromValues(Math.cos(angles[k]), Math.sin(angles[k]), 0);
+        let dir = vec3.fromValues(Math.cos(angle), Math.sin(angle), 0);
         vec3.scaleAndAdd(pk, pk, dir, lengths[k]);
         Ps.push(pk);
     }
